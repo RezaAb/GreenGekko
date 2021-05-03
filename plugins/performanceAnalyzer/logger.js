@@ -38,7 +38,7 @@ Logger.prototype.logReport = function(trade, report) {
   log.info(`(PROFIT REPORT) current balance:\t\t ${current} ${this.currency}`);
   log.info(
     `(PROFIT REPORT) profit:\t\t\t\t ${this.round(report.profit)} ${this.currency}`,
-    `(${report.relativeProfit > 0 ? colors.green(this.round(report.relativeProfit)+'%') : colors.green(this.round(report.relativeProfit)+'%')})`
+    `(${report.relativeProfit > 0 ? colors.green(this.round(report.relativeProfit)+'%') : colors.red(this.round(report.relativeProfit)+'%')})`
   );
 }
 
@@ -70,7 +70,7 @@ if(mode === 'backtest') {
 
     if (!shortTrading) {
       if(trade.action === 'sell') {
-          let tradeType = trade.trigger.origin != undefined && trade.trigger.origin != 'advice' ? trade.trigger.origin : '';
+          let tradeType = trade.trigger != undefined && trade.trigger.origin != undefined && trade.trigger.origin != 'advice' ? trade.trigger.origin : '';
           let trailPercent = tradeType == 'trailingStop' ? ' ' + trade.trigger.trailPercentage + '%' : '';
           let trailSLInfo = tradeType !== '' && trailPercent !== '' ? ` (${tradeType}${trailPercent})` : '';
 
@@ -93,7 +93,7 @@ if(mode === 'backtest') {
 
     if (shortTrading) {
       if(trade.action === 'sell') {
-        let tradeType = trade.trigger.origin != undefined && trade.trigger.origin != 'advice' ? trade.trigger.origin : '';
+        let tradeType = trade.trigger != undefined &&  trade.trigger.origin != undefined && trade.trigger.origin != 'advice' ? trade.trigger.origin : '';
         let trailPercent = tradeType == 'trailingStop' ? ' ' + trade.trigger.trailPercentage + '%' : '';
         let trailSLInfo = tradeType !== '' && trailPercent !== '' ? ` (${tradeType}${trailPercent})` : '';
 
