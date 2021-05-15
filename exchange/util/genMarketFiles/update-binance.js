@@ -6,13 +6,21 @@ const Promise = require('bluebird');
 
 let getOrderMinSize = currency => {
   if (currency === 'BTC') return 0.001;
-  else if (currency === 'ETH') return 0.01;
+  else if (currency === 'ETH') return 0.005;
+  else if (currency === 'BNB') return 0.05;
+  else if (currency === 'TRX') return 100;
+  else if (currency === 'XRP') return 10;
   else if (currency === 'USDT') return 10;
+  else if (currency === 'BUSD') return 10;
+  else if (currency === 'EUR') return 10;
+  else if (currency === 'GBP') return 10;
+  else if (currency === 'TUSD') return 10;
+  else if (currency === 'USDC') return 10;
   else return 1;
 };
 
 const options = {
-  url: 'https://www.binance.com/exchange/public/product',
+  url: 'https://www.binance.com/api/v3/exchangeInfo',
   headers: {
     Connection: 'keep-alive',
     'User-Agent': 'Request-Promise',
@@ -22,18 +30,27 @@ const options = {
 
 request(options)
   .then(body => {
-    if (!body && !body.data) {
+    if (!body) {
       throw new Error('Unable to fetch product list, response was empty');
     }
-
-    let assets = _.uniqBy(_.map(body.data, market => market.baseAsset));
-    let currencies = _.uniqBy(_.map(body.data, market => market.quoteAsset));
-    let pairs = _.map(body.data, market => {
+    let assets = _.uniqBy(_.map(body.symbols, market => market.baseAsset));
+    let currencies = _.uniqBy(_.map(body.symbols, market => market.quoteAsset));
+    let pairs = _.map(body.symbols, market => {
+      var amount,price;
+      for(var key in market.filters){
+        if(market.filters[key].filterType == 'PRICE_FILTER'){
+			price =  parseFloat(market.filters[key].minPrice);
+        }
+		if (market.filters[key].filterType == 'LOT_SIZE') {
+			amount = parseFloat(market.filters[key].minQty);
+		}
+      }
+      //console.log(amount,price);
       return {
         pair: [market.quoteAsset, market.baseAsset],
         minimalOrder: {
-          amount: parseFloat(market.minTrade),
-          price: parseFloat(market.tickSize),
+          amount: amount,
+          price:  price,
           order: getOrderMinSize(market.quoteAsset),
         },
       };
